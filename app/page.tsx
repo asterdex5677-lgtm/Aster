@@ -23,19 +23,25 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useTheme } from "next-themes"
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { injected } from 'wagmi/connectors'
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [walletConnected, setWalletConnected] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
     days: 7,
     hours: 12,
     minutes: 34,
     seconds: 56,
   })
+
+  // Wagmi hooks for wallet connection
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect()
+  const { disconnect } = useDisconnect()
 
   useEffect(() => {
     setMounted(true)
@@ -167,10 +173,10 @@ export default function LandingPage() {
             <Link
               href="#"
               className={`text-sm font-medium transition-colors hover:text-foreground ${
-                walletConnected ? "text-primary" : "text-muted-foreground"
+                isConnected ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              {walletConnected ? "Wallet Connected" : "Connect Wallet"}
+              {isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : "Connect Wallet"}
             </Link>
             <Button className="rounded-full">
               Launch App
@@ -212,11 +218,11 @@ export default function LandingPage() {
                 <Link 
                   href="#" 
                   className={`py-2 text-sm font-medium ${
-                    walletConnected ? "text-primary" : ""
+                    isConnected ? "text-primary" : ""
                   }`} 
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {walletConnected ? "Wallet Connected" : "Connect Wallet"}
+                  {isConnected ? `Connected: ${address?.slice(0, 6)}...${address?.slice(-4)}` : "Connect Wallet"}
                 </Link>
                 <Button className="rounded-full">
                   Launch App
@@ -273,10 +279,10 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
-                  onClick={walletConnected ? undefined : handleWalletConnect}
+                  onClick={isConnected ? undefined : handleWalletConnect}
                   className="rounded-full h-12 px-8 text-base bg-gradient-to-r from-primary to-yellow-400 hover:from-primary/90 hover:to-yellow-400/90"
                 >
-                  {walletConnected ? "Check Eligibility" : "Connect Wallet"}
+                  {isConnected ? "Check Eligibility" : "Connect Wallet"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
                 <Button
@@ -309,19 +315,77 @@ export default function LandingPage() {
               transition={{ duration: 0.7, delay: 0.2 }}
               className="relative mx-auto max-w-5xl"
             >
-              <div className="rounded-xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20">
-              <div className="aspect-video bg-gradient-to-br from-primary/10 via-background to-yellow-400/10 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30"></div>
-                <div className="relative z-10 text-center">
-                  <div className="size-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-yellow-400 flex items-center justify-center text-primary-foreground font-bold text-2xl shadow-lg">
-                    A
+              <div className="rounded-xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20 backdrop-blur-sm">
+                <div className="aspect-video bg-gradient-to-br from-primary/10 via-background to-yellow-400/10 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30"></div>
+                  
+                  {/* Main Interface Mockup */}
+                  <div className="relative z-10 w-full max-w-4xl mx-auto p-8">
+                    {/* Header Bar */}
+                    <div className="bg-background/80 backdrop-blur-sm rounded-lg p-4 mb-6 border border-border/40">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-yellow-400 flex items-center justify-center text-primary-foreground font-bold">
+                            A
+                          </div>
+                          <span className="font-bold text-lg">AsterDrop Interface</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="size-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span className="text-sm text-muted-foreground">Live</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Main Content */}
+                    <div className="text-center space-y-6">
+                      <div className="space-y-2">
+                        <h3 className="text-2xl font-bold">Wallet Connection Portal</h3>
+                        <p className="text-muted-foreground">Connect your wallet to check AsterDex airdrop eligibility</p>
+                      </div>
+                      
+                      {/* Connection Status */}
+                      <div className="bg-muted/50 rounded-lg p-6 border border-border/40">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                          <div className={`size-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`}></div>
+                          <span className="font-medium">
+                            {isConnected ? 'Wallet Connected' : 'Wallet Disconnected'}
+                          </span>
+                        </div>
+                        {isConnected && (
+                          <div className="text-sm text-muted-foreground font-mono">
+                            {address?.slice(0, 8)}...{address?.slice(-6)}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 justify-center">
+                        <Button 
+                          size="sm" 
+                          onClick={handleWalletConnect}
+                          className="bg-primary/20 text-primary hover:bg-primary/30"
+                        >
+                          {isConnected ? 'Disconnect' : 'Connect Wallet'}
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={!isConnected}
+                          className="border-primary/30"
+                        >
+                          Check Eligibility
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold mb-2">AsterDrop Interface</h3>
-                  <p className="text-muted-foreground">Connect your wallet to begin the claiming process</p>
+                  
+                  {/* Decorative Elements */}
+                  <div className="absolute top-4 right-4 size-3 bg-primary rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-6 left-6 size-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <div className="absolute top-1/4 left-8 size-1 bg-primary/60 rounded-full animate-ping"></div>
+                  <div className="absolute bottom-1/4 right-12 size-1 bg-yellow-400/60 rounded-full animate-ping"></div>
                 </div>
-                <div className="absolute top-4 right-4 size-3 bg-primary rounded-full animate-pulse"></div>
-                <div className="absolute bottom-6 left-6 size-2 bg-yellow-400 rounded-full animate-pulse"></div>
-              </div>
               </div>
               <div className="absolute -bottom-6 -right-6 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-primary/40 to-yellow-400/40 blur-3xl opacity-80 animate-pulse"></div>
               <div className="absolute -top-6 -left-6 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-yellow-400/40 to-primary/40 blur-3xl opacity-80 animate-pulse"></div>
@@ -648,11 +712,11 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
                 <Button
                   size="lg"
-                  onClick={walletConnected ? undefined : handleWalletConnect}
+                  onClick={isConnected ? undefined : handleWalletConnect}
                   variant="secondary"
                   className="rounded-full h-12 px-8 text-base bg-white text-primary hover:bg-white/90"
                 >
-                  {walletConnected ? "Check Eligibility Now" : "Connect Wallet Now"}
+                  {isConnected ? "Check Eligibility Now" : "Connect Wallet Now"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
                 <Button
