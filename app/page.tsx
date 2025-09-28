@@ -29,6 +29,7 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [walletConnected, setWalletConnected] = useState(false)
   const [timeLeft, setTimeLeft] = useState({
     days: 7,
     hours: 12,
@@ -158,9 +159,11 @@ export default function LandingPage() {
             </Button>
             <Link
               href="#"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className={`text-sm font-medium transition-colors hover:text-foreground ${
+                walletConnected ? "text-primary" : "text-muted-foreground"
+              }`}
             >
-              Connect Wallet
+              {walletConnected ? "Wallet Connected" : "Connect Wallet"}
             </Link>
             <Button className="rounded-full">
               Launch App
@@ -199,8 +202,14 @@ export default function LandingPage() {
                 FAQ
               </button>
               <div className="flex flex-col gap-2 pt-2 border-t">
-                <Link href="#" className="py-2 text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
-                  Connect Wallet
+                <Link 
+                  href="#" 
+                  className={`py-2 text-sm font-medium ${
+                    walletConnected ? "text-primary" : ""
+                  }`} 
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {walletConnected ? "Wallet Connected" : "Connect Wallet"}
                 </Link>
                 <Button className="rounded-full">
                   Launch App
@@ -257,9 +266,10 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
+                  onClick={walletConnected ? undefined : handleWalletConnect}
                   className="rounded-full h-12 px-8 text-base bg-gradient-to-r from-primary to-yellow-400 hover:from-primary/90 hover:to-yellow-400/90"
                 >
-                  Start Claiming
+                  {walletConnected ? "Check Eligibility" : "Connect Wallet"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
                 <Button
@@ -267,7 +277,7 @@ export default function LandingPage() {
                   variant="outline"
                   className="rounded-full h-12 px-8 text-base bg-transparent border-primary/30 hover:bg-primary/10"
                 >
-                  View Demo
+                  Learn More
                 </Button>
               </div>
               <div className="flex items-center justify-center gap-4 mt-6 text-sm text-muted-foreground">
@@ -277,11 +287,11 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Check className="size-4 text-primary" />
-                  <span>One-time event</span>
+                  <span>Historic event</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Check className="size-4 text-primary" />
-                  <span>Secure & mysterious</span>
+                  <span>Secure & automated</span>
                 </div>
               </div>
             </motion.div>
@@ -293,7 +303,18 @@ export default function LandingPage() {
               className="relative mx-auto max-w-5xl"
             >
               <div className="rounded-xl overflow-hidden shadow-2xl border border-border/40 bg-gradient-to-b from-background to-muted/20">
-                
+              <div className="aspect-video bg-gradient-to-br from-primary/10 via-background to-yellow-400/10 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f1f1f_1px,transparent_1px),linear-gradient(to_bottom,#1f1f1f_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30"></div>
+                <div className="relative z-10 text-center">
+                  <div className="size-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary to-yellow-400 flex items-center justify-center text-primary-foreground font-bold text-2xl shadow-lg">
+                    A
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">AsterDrop Interface</h3>
+                  <p className="text-muted-foreground">Connect your wallet to begin the claiming process</p>
+                </div>
+                <div className="absolute top-4 right-4 size-3 bg-primary rounded-full animate-pulse"></div>
+                <div className="absolute bottom-6 left-6 size-2 bg-yellow-400 rounded-full animate-pulse"></div>
+              </div>
               </div>
               <div className="absolute -bottom-6 -right-6 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-primary/40 to-yellow-400/40 blur-3xl opacity-80 animate-pulse"></div>
               <div className="absolute -top-6 -left-6 -z-10 h-[400px] w-[400px] rounded-full bg-gradient-to-br from-yellow-400/40 to-primary/40 blur-3xl opacity-80 animate-pulse"></div>
@@ -620,10 +641,11 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
                 <Button
                   size="lg"
+                  onClick={walletConnected ? undefined : handleWalletConnect}
                   variant="secondary"
                   className="rounded-full h-12 px-8 text-base bg-white text-primary hover:bg-white/90"
                 >
-                  Start Claiming Now
+                  {walletConnected ? "Check Eligibility Now" : "Connect Wallet Now"}
                   <ArrowRight className="ml-2 size-4" />
                 </Button>
                 <Button
@@ -631,11 +653,11 @@ export default function LandingPage() {
                   variant="outline"
                   className="rounded-full h-12 px-8 text-base bg-transparent border-white text-white hover:bg-white/10"
                 >
-                  View Demo
+                  Learn More
                 </Button>
               </div>
               <p className="text-sm text-primary-foreground/80 mt-4">
-                No gas fees. One-time event. Secure & mysterious experience.
+                No gas fees. Historic event. Secure & automated experience.
               </p>
             </motion.div>
           </div>
@@ -696,16 +718,21 @@ export default function LandingPage() {
               </ul>
             </div>
             <div className="space-y-4">
-              <h4 className="text-sm font-bold">Resources</h4>
+              <h4 className="text-sm font-bold">Support</h4>
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Documentation
+                    Help Center
                   </Link>
                 </li>
                 <li>
                   <Link href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">
                     Community
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">
+                    FAQ
                   </Link>
                 </li>
               </ul>
