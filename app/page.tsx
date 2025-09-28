@@ -114,6 +114,13 @@ export default function LandingPage() {
     setMobileMenuOpen(false)
   }
 
+  // <-- Added fix for the missing handleWalletConnect function
+  const handleWalletConnect = () => {
+    // Simple simulation of wallet connection toggle for now
+    setWalletConnected(true)
+    // TODO: Replace this with actual wallet connection logic (e.g., wagmi or ethers)
+  }
+
   return (
     <div className="flex min-h-[100dvh] flex-col">
       <header
