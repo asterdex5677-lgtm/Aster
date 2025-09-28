@@ -4,25 +4,38 @@ import { Inter } from "next/font/google"
 import type { Metadata } from "next"
 import { ThemeProvider } from "@/components/theme-provider"
 
+import { WagmiConfig, createClient, configureChains, mainnet } from "wagmi"
+import { publicProvider } from "wagmi/providers/public"
+
 const inter = Inter({ subsets: ["latin"] })
+
+const { provider, webSocketProvider } = configureChains(
+  [mainnet],
+  [publicProvider()]
+)
+
+const client = createClient({
+  autoConnect: true,
+  provider,
+  webSocketProvider,
+})
 
 export const metadata: Metadata = {
   title: "SaaSify - Streamline Your Workflow",
-  description: "Boost productivity, reduce costs, and scale your business with our all-in-one SaaS platform.",
-    generator: 'v0.app'
+  description:
+    "Boost productivity, reduce costs, and scale your business with our all-in-one SaaS platform.",
+  generator: "v0.app"
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
+        <WagmiConfig client={client}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+          </ThemeProvider>
+        </WagmiConfig>
       </body>
     </html>
   )
