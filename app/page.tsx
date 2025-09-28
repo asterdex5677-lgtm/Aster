@@ -353,7 +353,6 @@ export default function LandingPage() {
             </motion.div>
           </div>
         </section>
-        </section>
 
         {/* How It Works Section */}
         <section id="how-it-works" className="w-full py-20 md:py-32 bg-muted/30 relative overflow-hidden">
